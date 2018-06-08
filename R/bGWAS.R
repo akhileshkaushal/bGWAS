@@ -139,7 +139,7 @@ bGWAS <- function(name,
                   res_pruning_LD = 0,
                   save_files = FALSE,
                   verbose = TRUE,
-                  use_permutations= F, # get out of sample adj R2 + use perm to get p-values
+                  power= F, # get out of sample adj R2 + use perm to get p-values
                   stop_after_MR=F) {
 
 
