@@ -635,7 +635,7 @@ bGWAS <- function(name,
   tmp = paste0("> Calculating them for all SNPs  \n")
   log_info = update_log(log_info, tmp, verbose)
 
-  PriorWithBF = request_BFandP(Prior$prior, sign_thresh, use_permutations, save_files, verbose)
+  PriorWithBF = request_BFandP(Prior$prior, sign_thresh, power, save_files, verbose)
   log_info = c(log_info, PriorWithBF$log_info)
 
 
