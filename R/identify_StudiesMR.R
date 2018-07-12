@@ -419,7 +419,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, save_files=FALSE, verbose=
 
 
 
-      test.outcome    <- d_test$lifegen_phase2_bothpl_alldr_2017_09_18.tsv_withZ.gz
+      test.outcome    <- as.numeric(unlist(d_test[,..outcome]))
 
       SS.total      <- sum((test.outcome - mean(test.outcome))^2)
       SS.regression <- sum((preds$fit - mean(test.outcome))^2)
