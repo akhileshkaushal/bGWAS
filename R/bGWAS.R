@@ -547,7 +547,7 @@ bGWAS <- function(name,
   tmp = paste0("> Performing MR  \n")
   log_info = update_log(log_info, tmp, verbose)
 
-  res_MR = identify_studiesMR(matrix_MR$mat, MR_shrinkage, save_files, verbose)
+  res_MR = identify_studiesMR(matrix_MR$mat, MR_shrinkage, save_files, verbose, power)
   log_info = c(log_info, res_MR$log_info)
   # if error/problem in identify_studiesMR
   if(isTRUE(res_MR$stop)){
