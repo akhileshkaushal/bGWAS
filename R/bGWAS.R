@@ -55,7 +55,7 @@
 #' BETA should be : \code{b}, \code{beta}, \code{beta1} \cr
 #' SE should be : \code{se}, \code{std} \cr
 #' Z-Matrix files, containing Z-scores for all prior GWASs should be downloaded separately
-#' and stored in \code{"~/ZMatrices"} or in the folder specified with the argument
+#' and stored in \code{"~/trices"} or in the folder specified with the argument
 #' \code{Z_matrices}. \cr
 #' ## MORE INFO NEEDED HERE / HOW TO DOWNLOAD ID (see GitHub README)
 #'
@@ -184,8 +184,8 @@ bGWAS <- function(name,
 
   ## ZMatrices
   if (is.character(Z_matrices)){
-    if(!file.exists(paste0(Z_matrices, "/ZMatrix_Imputed.csv.gz"))) stop("No \"ZMatrix_Imputed.csv.gz\" file in specified Z_matrices folder", call. = FALSE)
-    if(!file.exists(paste0(Z_matrices, "/ZMatrix_NotImputed.csv.gz"))) stop("No \"ZMatrix_NotImputed.csv.gz\" file in specified Z_matrices folder", call. = FALSE)
+    if(!file.exists(paste0(Z_matrices, "/ZMatrix_Full.csv.gz"))) stop("No \"ZMatrix_Full.csv.gz\" file in specified Z_matrices folder", call. = FALSE)
+    if(!file.exists(paste0(Z_matrices, "/ZMatrix_MR.csv.gz"))) stop("No \"ZMatrix_MR.csv.gz\" file in specified Z_matrices folder", call. = FALSE)
     if(!file.exists(paste0(Z_matrices, "/AvailableStudies.tsv"))) stop("No \"AvailableStudies.tsv\" file in specified Z_matrices folder", call. = FALSE)
 
    # Define if the path is relative or not
@@ -194,11 +194,11 @@ bGWAS <- function(name,
    }
  } else stop("Z_matrices : wrong format, should be character", call. = FALSE)
 
-  MR_Files =  colnames(data.table::fread(paste0("zcat < ",paste0(Z_matrices, "/ZMatrix_NotImputed.csv.gz")), nrows=0, showProgress = FALSE))[-(1:5)]
-  Prior_Files =  colnames(data.table::fread(paste0("zcat < ",paste0(Z_matrices, "/ZMatrix_Imputed.csv.gz")), nrows=0, showProgress = FALSE))[-(1:5)]
-  List_Files = list_files(Z_matrices=Z_matrices)
-  if(!all(MR_Files==Prior_Files)) stop("Z_matrices : columns unconsistent between the two files")
-  if(!all(MR_Files==List_Files))  stop("Z_matrices : columns unconsistent with \"AvailableStudies.tsv\"")
+  MR_Names =  colnames(data.table::fread(paste0("zcat < ",paste0(Z_matrices, "/ZMatrix_MR.csv.gz")), nrows=0, showProgress = FALSE))[-(1:5)]
+  Prior_Names =  colnames(data.table::fread(paste0("zcat < ",paste0(Z_matrices, "/ZMatrix_Full.csv.gz")), nrows=0, showProgress = FALSE))[-(1:5)]
+  List_Names = list_names(Z_matrices=Z_matrices)
+  if(!all(MR_Names==Prior_Names)) stop("Z_matrices : columns unconsistent between the two Z-Matrix files")
+  if(!all(MR_Names==List_Names))  stop("Z_matrices : columns unconsistent with \"AvailableStudies.tsv\"")
 
   tmp = paste0("The Z-Matrix files are stored in \"", Z_matrices, "\".  \n")
   log_info = update_log(log_info, tmp, verbose)
@@ -210,9 +210,9 @@ bGWAS <- function(name,
   # TMP_FILE = F # flag : is a temporary file with Z-scores created ??
   # DO NOT CREATE A TEMP FILE ANYMORE, JUST STORE IT AS A DATA.FRAME
   if(is.numeric(GWAS)) { # if it is an ID
-    if(!GWAS %in% c(1:length(list_files(Z_matrices = Z_matrices)))) stop("The ID specified as a conventional GWAS is not in the list", call. = FALSE)
-    tmp = paste0("The conventional GWAS used as input is:",
-                 list_files(IDs=GWAS, Z_matrices = Z_matrices), " (ID = ",  GWAS,").  \n")
+    if(!GWAS %in% c(1:length(list_names(Z_matrices = Z_matrices)))) stop("The ID specified as a conventional GWAS is not in the list", call. = FALSE)
+    tmp = paste0("The conventional GWAS used as input is: \"",
+                 list_names(IDs=GWAS, Z_matrices = Z_matrices), "\" (ID = ",  GWAS,").  \n")
     log_info = update_log(log_info, tmp, verbose)
   } else if(is.character(GWAS)) { # if it is a file
     # First, does the file exists ?
@@ -366,13 +366,13 @@ bGWAS <- function(name,
   ## prior_studies
   # check that all the files required exist in our list of studies
   # should be specified as "File ID"
-  if(is.null(prior_studies)) prior_studies = c(1:length(list_files(Z_matrices = Z_matrices)))
-  if(!all(prior_studies %in% c(1:length(list_files(Z_matrices = Z_matrices))))) stop("prior_studies : all the IDs provided should belong to the ones available", call. = FALSE)
+  if(is.null(prior_studies)) prior_studies = c(1:length(list_names(Z_matrices = Z_matrices)))
+  if(!all(prior_studies %in% c(1:length(list_names(Z_matrices = Z_matrices))))) stop("prior_studies : all the IDs provided should belong to the ones available", call. = FALSE)
   # if GWAS from data, make sure to remove it + the studies using the same trait!!!
   if(is.numeric(GWAS) && GWAS %in% prior_studies){
     # remove GWAS of interest
     prior_studies = prior_studies[-(which(prior_studies == GWAS))]
-    tmp = paste0("The study ", list_files(IDs=GWAS, Z_matrices = Z_matrices), " (ID=", GWAS, ") has been removed from the studies used to build the prior since it is used as conventionnal GWAS. \n")
+    tmp = paste0("The study \"", list_names(IDs=GWAS, Z_matrices = Z_matrices), "\n (ID=", GWAS, ") has been removed from the studies used to build the prior since it is used as conventionnal GWAS. \n")
     log_info = update_log(log_info, tmp, verbose)
 
     # remove GWAS(s) for the same trait if needed
@@ -384,9 +384,9 @@ bGWAS <- function(name,
       nbToExclude = sum(prior_studies %in% ToExclude)
       prior_studies = prior_studies[-(which(prior_studies %in% ToExclude))]
       if(nbToExclude==1){
-        tmp = paste0("The study ", list_files(IDs=ToExclude, Z_matrices = Z_matrices), " has been removed from the studies used to build the prior since it's a GWAS for the same trait as the study used as conventionnal GWAS. \n")
+        tmp = paste0("The study ", list_names(IDs=ToExclude, Z_matrices = Z_matrices), " has been removed from the studies used to build the prior since it's a GWAS for the same trait as the study used as conventionnal GWAS. \n")
       }else{
-        tmp = paste0("The studies : ", paste0(list_files(IDs=ToExclude, Z_matrices = Z_matrices), collapse=" - "), " have been removed from the studies used to build the prior since they are GWASs for the same trait as the study used as conventionnal GWAS. \n")
+        tmp = paste0("The studies : \"", paste0(list_names(IDs=ToExclude, Z_matrices = Z_matrices), collapse="\" - \""), "\" have been removed from the studies used to build the prior since they are GWASs for the same trait as the study used as conventionnal GWAS. \n")
       }
       log_info = update_log(log_info, tmp, verbose)
     }
@@ -519,7 +519,7 @@ bGWAS <- function(name,
 
     Files_Info = list_priorGWASs(Z_matrices = Z_matrices)
     # keep only interesting columns + add "Status" column
-    Files_Info = Files_Info[, c(1,3:6)]
+    Files_Info = Files_Info[, c(2,4:6)]
     Files_Info$status= "Exluded by user"
     Files_Info[prior_studies, "status"] = "USED"
     if(is.numeric(GWAS))  Files_Info[GWAS, "status"] = "Conventionnal GWAS"
@@ -577,7 +577,7 @@ bGWAS <- function(name,
 
   tmp = paste0("> Creating the full Z-Matrix  \n")
   log_info = update_log(log_info, tmp, verbose)
-  Studies = select_priorGWASs(include_files=res_MR$studies, Z_matrices = Z_matrices)
+  Studies = select_priorGWASs(include_names=res_MR$studies, Z_matrices = Z_matrices)
   matrix_all = makeFull_ZMatrix(Studies, GWAS, Z_matrices, save_files, verbose)
   log_info = c(log_info,matrix_all$log_info)
 

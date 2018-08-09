@@ -11,6 +11,7 @@
 # #' @param studies The IDs of the significant studies selected by \code{identify_studiesMR()}
 # #'        (numeric vector)
 # #'
+#' @importFrom magrittr "%>%"
 # #' @return An object containing Log file and pruned Z-Matrix of MR instrument (data table) + create a file if saveFiles=T
 # #'
 
@@ -30,7 +31,7 @@ makeFull_ZMatrix <- function(studies=NULL, GWAS,  Z_matrices="~/Z_matrices", sav
   Log = update_log(Log, tmp, verbose)
 
   if(platform == "unix") {
-    ZMatrix=data.table::fread(paste0("zcat < ",paste0(Z_matrices, "/ZMatrix_Imputed.csv.gz")), select=c(1:5, studies+5 ), showProgress = FALSE, data.table = F)
+    ZMatrix=data.table::fread(paste0("zcat < ",paste0(Z_matrices, "/ZMatrix_Full.csv.gz")), select=c(1:5, studies+5 ), showProgress = FALSE, data.table = F)
   }
   tmp = paste0(ncol(ZMatrix)-5, " studies \n")
   Log = update_log(Log, tmp, verbose)
@@ -43,7 +44,7 @@ makeFull_ZMatrix <- function(studies=NULL, GWAS,  Z_matrices="~/Z_matrices", sav
   # Add conventional GWAS column, at the end (make sure alleles are aligned)
 
   if(is.numeric(GWAS)){  # if GWAS from our data
-    tmp = paste0("# Adding data from the conventional GWAS (ID=", GWAS, "): \n \"", list_files(IDs = GWAS, Z_matrices = Z_matrices) , "\" \n")
+    tmp = paste0("# Adding data from the conventional GWAS (ID=", GWAS, "): \n \"", list_names(IDs = GWAS, Z_matrices = Z_matrices) , "\" \n")
     Log = update_log(Log, tmp, verbose)
 
 
@@ -54,7 +55,7 @@ makeFull_ZMatrix <- function(studies=NULL, GWAS,  Z_matrices="~/Z_matrices", sav
     # keep the SNPs in our pruned matrix and order them correctly
     GWASData = GWASData[match(ZMatrix$rs,GWASData$rs),]
     ZMatrix$outcome =  GWASData[,6]
-    colnames(ZMatrix)[ncol(ZMatrix)]= list_files(IDs = GWAS, Z_matrices = path)
+    colnames(ZMatrix)[ncol(ZMatrix)]= list_names(IDs = GWAS, Z_matrices = path)
 
     tmp = "Done! \n"
     Log = update_log(Log, tmp, verbose)
@@ -135,8 +136,11 @@ makeFull_ZMatrix <- function(studies=NULL, GWAS,  Z_matrices="~/Z_matrices", sav
   }
 
 
+  # keep only SNPs with non NA obs
+  ZMatrix = ZMatrix[!is.na(ZMatrix[,ncol(ZMatrix)]),]
+  # + replace NA by 0 for prior GWASs before computing prior
+  ZMatrix = ZMatrix %>% replace(is.na(.), 0)
 
-  ZMatrix = ZMatrix[complete.cases(ZMatrix),]
   tmp = paste0(format(nrow(ZMatrix), big.mark = ",", scientific=F), " SNPs in common between prior studies and the conventional GWAS \n")
   Log = update_log(Log, tmp, verbose)
 

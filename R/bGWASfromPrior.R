@@ -81,9 +81,9 @@ bGWASfromPrior <- function(name,
 
   # platform identification : used in the main function
   # automatically re-detected when needed by other sub-functions
-  platform = c("Linux", "macOS", "W")[c(grepl("Linux", sessionInfo()$running)
-                                        , grepl("macOS", sessionInfo()$running)
-                                        , grepl("Windows", sessionInfo()$running))]
+  platform = c("Linux", "macOS", "W")[c(grepl("Linux", utils::sessionInfo()$running)
+                                        , grepl("macOS", utils::sessionInfo()$running)
+                                        , grepl("Windows", utils::sessionInfo()$running))]
   if(platform=="W") stop("Windows is not supported yet")
 
   # initialization of log_info file
@@ -202,8 +202,8 @@ bGWASfromPrior <- function(name,
         # write the data (as tar.gz) and change GWAS name to the created file
         # but save it in the current folder, no initial one
         TMP_Name = paste0(gsub(".gz", "",  paste0(getwd(), "/", strsplit(GWAS, "/")[[1]][length(strsplit(GWAS, "/")[[1]])])), "_withZ.gz")
-        write.table(DataGWAS, file=gzfile(TMP_Name), sep="\t",
-                    quote=F, row.names=F)
+        utils::write.table(DataGWAS, file=gzfile(TMP_Name), sep="\t",
+                           quote=F, row.names=F)
         GWAS = TMP_Name
         # flag the created file
         TMP_FILE = T
@@ -299,7 +299,7 @@ bGWASfromPrior <- function(name,
   # if GWAS from data, make sure to remove it
   if(is.numeric(GWAS) && GWAS %in% prior_studies){
     prior_studies = prior_studies[-GWAS]
-    tmp = paste0("The study ", list_files(ID=GWAS), " (ID=", GWAS, ") has been removed from the studies used to build the prior since it is used as conventionnal GWAS. \n")
+    tmp = paste0("The study ", list_files(IDs=GWAS), " (ID=", GWAS, ") has been removed from the studies used to build the prior since it is used as conventionnal GWAS. \n")
     log_info = update_log(log_info, tmp, verbose)
     ### TO BE DONE
     # check that the user did not use exactly the same study for GWAS and for Prior,
@@ -357,7 +357,7 @@ bGWASfromPrior <- function(name,
     Files_Info[prior_studies, "Status"] = "USED"
     if(is.numeric(GWAS))  Files_Info[GWAS, "Status"] = "Conventionnal GWAS"
 
-    write.table(Files_Info, file="PriorGWASs.tsv", sep="\t", quote=F, row.names=F )
+    utils::write.table(Files_Info, file="PriorGWASs.tsv", sep="\t", quote=F, row.names=F )
 
     tmp = paste0("List of files : ", Dir, "/PriorGWASs.csv has been successfully created.  \n")
     log_info = update_log(log_info, tmp, verbose)

@@ -28,12 +28,12 @@ makeMR_ZMatrix <- function(prior_studies=NULL, GWAS,
     tmp = paste0("Selecting studies :\n")
     Log = update_log(Log, tmp, verbose)
     if(platform == "unix"){
-      ZMatrix=data.table::fread(paste0("zcat < ",paste0(path, "/ZMatrix_NotImputed.csv.gz")), select=c(1:5, prior_studies+5), showProgress = FALSE, data.table=F)
+      ZMatrix=data.table::fread(paste0("zcat < ",paste0(path, "/ZMatrix_MR.csv.gz")), select=c(1:5, prior_studies+5), showProgress = FALSE, data.table=F)
     }
 
   } else {
     if(platform == "unix") {
-      ZMatrix=data.table::fread(paste0("zcat < ",paste0(path, "/ZMatrix_NotImputed.csv.gz")), showProgress = FALSE, data.table=F)
+      ZMatrix=data.table::fread(paste0("zcat < ",paste0(path, "/ZMatrix_MR.csv.gz")), showProgress = FALSE, data.table=F)
     }
   }
 
@@ -47,18 +47,18 @@ makeMR_ZMatrix <- function(prior_studies=NULL, GWAS,
   # from the conventionnal GWAS when pruning
   # Add conventional GWAS column, at the end (make sure alleles are aligned)
   if(is.numeric(GWAS)){  # if GWAS from our data
-    tmp = paste0("# Adding data from the conventional GWAS (ID=", GWAS, "): \n \"", list_files(IDs = GWAS, Z_matrices = path) , "\" \n")
+    tmp = paste0("# Adding data from the conventional GWAS (ID=", GWAS, "): \n \"", list_names(IDs = GWAS, Z_matrices = path) , "\" \n")
     Log = update_log(Log, tmp, verbose)
 
     if(platform == "unix"){
-      GWASData=data.table::fread(paste0("zcat < ",paste0(path, "/ZMatrix_Imputed.csv.gz")), select=c(1:5, GWAS+5), showProgress = FALSE, data.table=F)
+      GWASData=data.table::fread(paste0("zcat < ",paste0(path, "/ZMatrix_MR.csv.gz")), select=c(1:5, GWAS+5), showProgress = FALSE, data.table=F)
     }
 
     # no need to check for alignment of alleles, just subset and rename the column
     # keep the SNPs in our pruned matrix and order them correctly
     GWASData = GWASData[match(ZMatrix$rs,GWASData$rs),]
     ZMatrix$outcome =  GWASData[,6]
-    colnames(ZMatrix)[ncol(ZMatrix)]= list_files(IDs = GWAS, Z_matrices = path)
+    colnames(ZMatrix)[ncol(ZMatrix)]= list_names(IDs = GWAS, Z_matrices = path)
 
     tmp = "Done! \n"
     Log = update_log(Log, tmp, verbose)
@@ -160,7 +160,7 @@ makeMR_ZMatrix <- function(prior_studies=NULL, GWAS,
     if(!all(StudiesToKeep)){
       tmp = paste0(paste0(colnames(ZMatrix[,-c(1:5)])[!StudiesToKeep], collapse=" - "), " : removed (no strong instrument after thresholding) \n")
       if(save_files){
-        Files_Info$status[Files_Info$File %in% colnames(ZMatrix[,-c(1:5)])[!StudiesToKeep]] =
+        Files_Info$status[Files_Info$Name %in% colnames(ZMatrix[,-c(1:5)])[!StudiesToKeep]] =
           "Excluded for MR: no strong instrument left after thresholding"
       }
       ZMatrix[,colnames(ZMatrix[,-c(1:5)])[!StudiesToKeep]] <- NULL
@@ -210,7 +210,7 @@ makeMR_ZMatrix <- function(prior_studies=NULL, GWAS,
   if(!all(StudiesToKeep)){
     tmp = paste0(paste0(colnames(ZMatrixPruned[,-c(1:5)])[!StudiesToKeep], collapse=" - "), " : removed (no strong instrument after pruning) \n")
     if(save_files){
-      Files_Info$status[Files_Info$File %in% colnames(ZMatrix[,-c(1:5)])[!StudiesToKeep]] =
+      Files_Info$status[Files_Info$Name %in% colnames(ZMatrix[,-c(1:5)])[!StudiesToKeep]] =
         "Excluded for MR: no strong instrument left after pruning"
     }
     ZMatrixPruned[,colnames(ZMatrixPruned[,-c(1:5)])[!StudiesToKeep]] <- NULL

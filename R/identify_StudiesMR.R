@@ -116,7 +116,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
     Names = uni.coefs.collection[too.high,"nm"]
     r2 = uni.coefs.collection[too.high,"r.squared"]
     S = list_priorGWASs(Z_matrices = Z_matrices)
-    IDs = S$ID[match(Names$nm, S$File)]
+    IDs = S$ID[match(Names$nm, S$Name)]
     Ref = paste0(Names$nm, " (ID = ", IDs, " - r2 = ", r2$r.squared, ")")
 
     tmp = paste0("The study ", Ref,
@@ -136,17 +136,17 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
 
   if(save_files){ # add univariate coeffs
    Files_Info$uni_estimate = numeric()
-   Files_Info$uni_estimate[match(uni.coefs.collection$study, Files_Info$File)] = uni.coefs.collection$estimate
+   Files_Info$uni_estimate[match(uni.coefs.collection$study, Files_Info$Name)] = uni.coefs.collection$estimate
    Files_Info$uni_std_error = numeric()
-   Files_Info$uni_std_error[match(uni.coefs.collection$study, Files_Info$File)] = uni.coefs.collection$std_error
+   Files_Info$uni_std_error[match(uni.coefs.collection$study, Files_Info$Name)] = uni.coefs.collection$std_error
    Files_Info$uni_T = numeric()
-   Files_Info$uni_T[match(uni.coefs.collection$study, Files_Info$File)] = unlist(uni.coefs.collection[,"T"])
+   Files_Info$uni_T[match(uni.coefs.collection$study, Files_Info$Name)] = unlist(uni.coefs.collection[,"T"])
    Files_Info$uni_P = numeric()
-   Files_Info$uni_P[match(uni.coefs.collection$study, Files_Info$File)] = uni.coefs.collection$P
+   Files_Info$uni_P[match(uni.coefs.collection$study, Files_Info$Name)] = uni.coefs.collection$P
    Files_Info$uni_adj_Rsquared = numeric()
-   Files_Info$uni_adj_Rsquared[match(uni.coefs.collection$study, Files_Info$File)] = uni.coefs.collection$adj_Rsquared
+   Files_Info$uni_adj_Rsquared[match(uni.coefs.collection$study, Files_Info$Name)] = uni.coefs.collection$adj_Rsquared
    Files_Info$uni_Rsquared = numeric()
-   Files_Info$uni_Rsquared[match(uni.coefs.collection$study, Files_Info$File)] = uni.coefs.collection$Rsquared
+   Files_Info$uni_Rsquared[match(uni.coefs.collection$study, Files_Info$Name)] = uni.coefs.collection$Rsquared
   }
 
 
@@ -188,7 +188,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
 
   if(save_files){ # add Status : AIC exclusion
     StudiesNotSelected =   Prior_study_names[!Prior_study_names %in%   post_AIC_studies ]
-    Files_Info$status[Files_Info$File %in% StudiesNotSelected] = "Excluded during multivariate MR (AIC stepwise selection)"
+    Files_Info$status[Files_Info$Name %in% StudiesNotSelected] = "Excluded during multivariate MR (AIC stepwise selection)"
   }
 
   if(length(post_AIC_studies)==0){
@@ -238,7 +238,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
     reasons          <- c(reasons, paste0('MR pvalue too high: ', format(digits=3, largest.MR.p.value$`Pr(>|t|)`[1])))
     largest.MR.p.value = largest.MR.p.value[-1,]
     if(nrow(largest.MR.p.value)==0){
-      Files_Info$status[Files_Info$File %in% studies_to_remove] =
+      Files_Info$status[Files_Info$Name %in% studies_to_remove] =
         "Excluded during multivariate MR (p-value > 0.05)"
 
       tmp = "No study significant in multivariate analysis with p<0.05 - Analysis failed"
@@ -256,7 +256,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
 
   if(!is.null(studies_to_remove)){
     if(save_files){ # add Status : AIC exclusion
-      Files_Info$status[Files_Info$File %in% studies_to_remove] =
+      Files_Info$status[Files_Info$Name %in% studies_to_remove] =
         "Excluded during multivariate MR (p-value > 0.05)"
     }
     tmp = paste0(paste0(studies_to_remove, collapse=" - "), " : removed because of MR p-value > 0.05 \n")
@@ -280,7 +280,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
     look.for.magnitude.of.diference = look.for.magnitude.of.diference[-study.with.biggest.sign.difference]
     if(length(look.for.magnitude.of.diference)==0){
       if(save_files){ # add Status : Direction
-        Files_Info$status[Files_Info$File %in% studies_to_removeD] =
+        Files_Info$status[Files_Info$Name %in% studies_to_removeD] =
           "Excluded during multivariate MR (unconsistent direction)"
       }
 
@@ -300,7 +300,7 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
 
   if(!is.null(studies_to_removeD)){
     if(save_files){ # add Status : Direction
-      Files_Info$status[Files_Info$File %in% studies_to_removeD] =
+      Files_Info$status[Files_Info$Name %in% studies_to_removeD] =
         "Excluded during multivariate MR (unconsistent direction)"
     }
     tmp = paste0(paste0(studies_to_removeD, collapse=" - "), " : removed because of different directions (univariate vs multivariate) \n")
@@ -332,13 +332,13 @@ identify_studiesMR <- function(ZMatrix, MR_shrinkage, Z_Matrices, save_files=FAL
 
   if(save_files){
     Files_Info$multi_estimate = numeric()
-    Files_Info$multi_estimate[match(coefs$study, Files_Info$File)] = coefs$estimate
+    Files_Info$multi_estimate[match(coefs$study, Files_Info$Name)] = coefs$estimate
     Files_Info$multi_std_error = numeric()
-    Files_Info$multi_std_error[match(coefs$study, Files_Info$File)] = coefs$std_error
+    Files_Info$multi_std_error[match(coefs$study, Files_Info$Name)] = coefs$std_error
     Files_Info$multi_T = numeric()
-    Files_Info$multi_T[match(coefs$study, Files_Info$File)] = unlist(coefs[,"T"])
+    Files_Info$multi_T[match(coefs$study, Files_Info$Name)] = unlist(coefs[,"T"])
     Files_Info$multi_P = numeric()
-    Files_Info$multi_P[match(coefs$study, Files_Info$File)] = coefs$P
+    Files_Info$multi_P[match(coefs$study, Files_Info$Name)] = coefs$P
   }
   outcome = colnames(ZMatrix)[ncol(ZMatrix)]
 
