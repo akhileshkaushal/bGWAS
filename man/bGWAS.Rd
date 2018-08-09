@@ -4,7 +4,7 @@
 \alias{bGWAS}
 \title{bGWAS - main function}
 \usage{
-bGWAS(name, GWAS, Z_matrices = "~/ZMatrices/", prior_studies = NULL,
+bGWAS(name, GWAS, Z_matrices = "~/trices/", prior_studies = NULL,
   MR_threshold = 1e-06, MR_pruning_dist = 500, MR_pruning_LD = 0,
   MR_shrinkage = 1, prior_shrinkage = 1, stop_after_prior = FALSE,
   sign_method = "p", sign_thresh = 5e-08, use_permutations = FALSE,
@@ -99,7 +99,7 @@ gzipped file is created and removed after the analysis. \cr
 BETA should be : \code{b}, \code{beta}, \code{beta1} \cr
 SE should be : \code{se}, \code{std} \cr
 Z-Matrix files, containing Z-scores for all prior GWASs should be downloaded separately
-and stored in \code{"~/ZMatrices"} or in the folder specified with the argument
+and stored in \code{"~/trices"} or in the folder specified with the argument
 \code{Z_matrices}. \cr
 ## MORE INFO NEEDED HERE / HOW TO DOWNLOAD ID (see GitHub README)
 

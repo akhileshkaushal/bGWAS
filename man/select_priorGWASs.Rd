@@ -4,16 +4,16 @@
 \alias{select_priorGWASs}
 \title{select_priorGWASs}
 \usage{
-select_priorGWASs(include_files = NULL, include_traits = NULL,
-  includeConsortia = NULL, exclude_files = NULL, exclude_traits = NULL,
+select_priorGWASs(include_names = NULL, include_traits = NULL,
+  includeConsortia = NULL, exclude_names = NULL, exclude_traits = NULL,
   excludeConsortia = NULL, Z_matrices = "~/ZMatrices/", verbose = F)
 }
 \arguments{
-\item{include_files}{list of file names}
+\item{include_names}{list of prior GWASs names}
 
 \item{include_traits}{list of trait}
 
-\item{exclude_files}{list of file names}
+\item{exclude_names}{list of file names}
 
 \item{exclude_traits}{list of trait}
 
@@ -30,13 +30,13 @@ select_priorGWASs(include_files = NULL, include_traits = NULL,
 IDs of studies that meet the criteria
 }
 \description{
-Allow the quick selection of a subset of studies for prior based on 3 criteria. First, include all the files
-specified (if all including parameters are NULL, include all studies), and then remove all the files specified
+Allow the quick selection of a subset of studies for prior based on 3 criteria. First, include all the prior GWASs
+specified (if all including parameters are NULL, include all studies), and then remove all the prior GWASs specified
 (if all excluding parameters are NULL, keep all studies included at the step before)
 }
 \examples{
   AllStudies = list_priorGWASs()
-  list_traits()
+  list_names()
   MyStudies = select_priorGWASs(include_traits=c("Heart Rate", "Body mass index", "Smoking"))
   #AllStudies[AllStudies$ID \%in\% MyStudies, ]
 }
